@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+  <title> Ebon Blade Chronicles </title>
+
+  <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-extras@fb96ab2/dist/aframe-extras.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-physics-system@v4.2.2/dist/aframe-physics-system.min.js"></script>
+  <script src="scripts/game/utils.js"></script>
+  <script src="scripts/core/torch.js"></script>
+  <script src="scripts/characters/ball.js"></script>
+  <script src="scripts/characters/cube.js"></script>
+  <script src="scripts/characters/enemy.js"></script>
+  <script src="scripts/core/main.js"></script>
+  
+</head>
+
+<body>
+  <!-- Inventory Bar -->
+  <div id="inventory-bar" style="position: fixed;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 10px;
+    background: rgba(255, 255, 255, 0.8);
+    padding: 10px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    z-index: 9999;">
+    <div class="inventory-slot" style="width: 50px; height: 50px; background: lightgray; border: 2px solid black;">
+      <img id="inventory-item1" src="" style="width: 100%; height: 100%; display: none;">
+    </div>
+    <div class="inventory-slot" style="width: 50px; height: 50px; background: lightgray; border: 2px solid black;">
+      <img id="inventory-item2" src="" style="width: 100%; height: 100%; display: none;">
+    </div>
+    <div class="inventory-slot" style="width: 50px; height: 50px; background: lightgray; border: 2px solid black;">
+      <img id="inventory-item3" src="" style="width: 100%; height: 100%; display: none;">
+    </div>
+  </div>
+
+  <a-scene stats loading-screen="enabled: true" physics="debug: false" physics="enabled: true">
+    <a-entity light="type: ambient; intensity:0.1"></a-entity>
+    <a-sphere id="moon" radius="3" position="0 50 -80" src="assets/images/moon_texture.jpg"
+      light="type:directional;castShadow:true;intensity:0.7"></a-sphere>
+    <a-sphere radius="3.5" position="0 50 -80"
+      material="color: #ffffff; opacity: 0.5; shader: standard; emissive: #ffffff; emissiveIntensity: 1.5"></a-sphere>
+
+    <!-- Floor & Sky -->
+    <a-sky src="assets/images/sky.jpg" repeat="20 20"></a-sky>
+    <a-plane static-body src="assets/images/stone3.png" repeat="40 40" position="0 0 -75" rotation="-90 0 0"
+      side="double" width="500" height="500"></a-plane>
+    <a-entity id="cloud-container"></a-entity>
+	
+    <a-assets>
+      <!-- 3d models -->
+      <a-asset-item id="Wall" src="assets/environment/walls/Wall.glb"></a-asset-item>
+      <a-asset-item id="Wall.001" src="assets/environment/walls/Wall.001.glb"></a-asset-item>
+      <a-asset-item id="Wall.004" src="assets/environment/walls/Wall.004.glb"></a-asset-item>
+      <a-asset-item id="Wall.005" src="assets/environment/walls/Wall.005.glb"></a-asset-item>
+      <a-asset-item id="Wall.007" src="assets/environment/walls/Wall.007.glb"></a-asset-item>
+      <a-asset-item id="Wall.008" src="assets/environment/walls/Wall.008.glb"></a-asset-item>
+      <a-asset-item id="Wall.0010" src="assets/environment/walls/Wall.0010.glb"></a-asset-item>
+      <a-asset-item id="Wall.0012" src="assets/environment/walls/Wall.0012.glb"></a-asset-item>
+      <a-asset-item id="Wall.0015" src="assets/environment/walls/Wall.0015.glb"></a-asset-item>
+      <a-asset-item id="tunnel" src="assets/environment/walls/tunnel.glb"></a-asset-item>
+      <a-asset-item id="torch" src="assets/environment/torch.glb"></a-asset-item>
+      <a-asset-item id="fire" src="assets/environment/fire.glb"></a-asset-item>
+      <a-asset-item id="statue" src="assets/environment/decoration/statue.glb">
+        </a-assets-item>
+        <a-asset-item id="barrels" src="assets/environment/decoration/barrels.glb">
+          </a-assets-item>
+          <a-asset-item id="carpet" src="assets/environment/decoration/carpet.glb">
+            </a-assets-item>
+            <a-asset-item id="chains" src="assets/environment/decoration/chains.glb">
+              </a-assets-item>
+              <a-asset-item id="crate" src="assets/environment/decoration/crate2.glb">
+                </a-assets-item>
+                <a-asset-item id="bottom" src="assets/environment/decoration/bottom.glb"></a-asset-item>
+                <a-asset-item id="top" src="assets/environment/decoration/top.glb"></a-asset-item>
+                <a-asset-item id="doorRight42" src="assets/environment/decoration/doorRight42.glb"></a-asset-item>
+                <a-asset-item id="doorRight32" src="assets/environment/decoration/doorRight32.glb"></a-asset-item>
+
+
+                <!-- images -->
+                <img id="wall_texture" src="assets/images/wall_texture2.jpg" />
+                <img id="column_Part" src="assets/images/column_part.png" />
+                <img id="column_TopPart" src="assets/images/column_top.png" />
+                <img id="column_Pattern" src="assets/images/column_pattern5.png" />
+                <img id="copper" src="assets/images/copper.png">
+                <img id="silver" src="assets/images/silver.png">
+                <img id="gold" src="assets/images/gold.jpg">
+                <img id="copper_key" src="assets/images/copperKey.png" style="display:none;">
+                <img id="silver_key" src="assets/images/silverKey.png" style="display:none;">
+                <img id="copper_key" src="assets/images/goldKey.png" style="display:none;">
+                <img id="barrierPattern" src="assets/images/patternRed.png" style="display:none;">
+                <img id="finechina" src="assets/images/finechina.jpg" />
+                <img id="rock" src="assets/images/rock.jpg" />
+                <img id="painting1" src="assets/images/painting.png" />
+                <img id="painting2" src="assets/images/painting2.png" />
+                <img id="painting3" src="assets/images/painting3.png" />
+                <img id="painting4" src="assets/images/painting4.png" />
+                <img id="painting5" src="assets/images/painting5.png" />
+                <img id="painting6" src="assets/images/painting6.png" />
+                <img id="painting7" src="assets/images/painting7.png" />
+                <img id="painting8" src="assets/images/painting8.png" />
+                <img id="painting9" src="assets/images/painting9.png" />
+                <img id="painting10" src="assets/images/painting10.png" />
+                <img id="painting11" src="assets/images/painting11.png" />
+                <img id="painting12" src="assets/images/painting12.png" />
+                <img id="tree" src="assets/images/tree.png" />
+                <img id="wood" src="assets/images/wood.jpg" />
+
+
+    </a-assets>
+
+    <!-- Outside of Dungeon -->
+    <a-box position="0 0 10" color="black" width="2.5" depth="2.5" height="1"></a-box>
+    <a-gltf-model id="#Wall" gltf-model="#Wall" scale="1 1 1" rotation="0 270 0" position="0 9.5 0"></a-gltf-model>
+    <a-gltf-model id="#tunnel" gltf-model="#tunnel" scale="1 1 1" rotation="0 90 0" position="0 0.750 -15.519"
+      visible="true" shadow="cast: false"></a-gltf-model>
+    <a-gltf-model id="#tunnel" gltf-model="#tunnel" scale="1 1 1" rotation="0 90 0" position="-10 0.750 -99.953"
+      visible="true" shadow="cast: false"></a-gltf-model>
+    <a-gltf-model id="#Wall.001" gltf-model="#Wall.001" scale="1 1 1" rotation="0 270 0" position="-40 8 8"
+      visible="true" shadow="cast: false"></a-gltf-model>
+    <a-gltf-model id="#Wall.001" gltf-model="#Wall.001" scale="1 1 1" rotation="0 270 0" position="40 8 8"
+      visible="true" shadow="cast: false"></a-gltf-model>
+    <a-gltf-model id="#Wall.004" gltf-model="#Wall.004" scale="1 1 1" rotation="0 220 0" position="73.988 13 -14.746"
+      visible="true" shadow="cast: false"></a-gltf-model>
+    <a-gltf-model id="#Wall.004" gltf-model="#Wall.004" scale="1 1 1" rotation="0 220 0" position="-57.424 13 -14.746"
+      visible="true" shadow="cast: false"></a-gltf-model>
+    <!-- <a-gltf-model id="#Wall.005" gltf-model="#Wall.005"  scale="1 1 1" rotation="0 90 0" position="-73.933 8.483 -48.295" visible="true" shadow="cast: false"></a-gltf-model> -->
+    <!-- <a-gltf-model id="#Wall.0010" gltf-model="#Wall.0010"  scale="1 1 1.75" rotation="0 0 0" position="144.073 7.012 -59.168" visible="true" shadow="cast: false"></a-gltf-model> -->
+    <a-gltf-model id="#Wall.008" gltf-model="#Wall.008" scale="1 1 1" rotation="0 -90 0"
+      position="45.178 14.614 -131.675" visible="true" shadow="cast: false"></a-gltf-model>
+    <a-gltf-model id="#Wall.008" gltf-model="#Wall.008" scale="1 1 1" rotation="0 90 0"
+      position="-65.204 14.614 -101.244" visible="true" shadow="cast: false"></a-gltf-model>
+    <a-gltf-model id="#Wall.0010" gltf-model="#Wall.0010" scale="1 1 1.350" rotation="0 90 0"
+      position="99.093 7.206 -119.350" visible="true" shadow="cast: false"></a-gltf-model>
+    <a-gltf-model id="#Wall.0012" gltf-model="#Wall.0012" scale="1 1 1" rotation="0 270 0"
+      position="108.315 8.275 -0.130" visible="true" shadow="cast: false"></a-gltf-model>
+    <a-gltf-model id="#Wall.0015" gltf-model="#Wall.0015" scale="1 1 1" rotation="0 90 0"
+      position="-21.069 9.299 -116.473" visible="true" shadow="cast: false"></a-gltf-model>
+    <a-gltf-model src="#statue" position="7 0 4" rotation="0 180 0" scale="0.015 0.015 0.015"></a-gltf-model>
+    <a-gltf-model src="#statue" position="-7 0 4" rotation="0 180 0" scale="0.015 0.015 0.015"></a-gltf-model>
+
+
+    <!-- Room 1 -->
+    <a-entity id="room1" position="0 0 -20">
+      <a-box static-body position="-22.5 7.5 -23" rotation="0 90 0" depth="0.1" height="15" width="45"
+        src="#wall_texture" repeat="2 1"></a-box>
+      <a-box static-body position="0 7.5 -43" depth="0.1" height="15" width="45" src="#wall_texture" repeat="2 1">
+      </a-box>
+
+      <a-entity rotation="0 90 0" position="60.5 0 -23">
+        <a-box static-body position="-15 7.5 -38" depth="0.1" height="15" width="15" src="#wall_texture"></a-box>
+        <a-box static-body position="15 7.5 -38" depth="0.1" height="15" width="15" src="#wall_texture"></a-box>
+      </a-entity>
+
+      <a-entity id="tunnel_cover">
+        <a-box static-body position="20.5 7.5 -8" depth="0.1" height="15" width="12" src="#wall_texture"></a-box>
+        <a-box static-body position="-21.950 7.5 -8" depth="0.1" height="15" width="15" src="#wall_texture"></a-box>
+
+        <a-entity static-body geometry="primitive: triangle;
+        vertexA: 0 0 0; 
+        vertexB: 10.5 0 0; 
+        vertexC: 0 10.5 0" material="src: #wall_texture; side: double" position="14.5 15 -8.05" rotation="180 180 0">
+        </a-entity>
+
+        <a-entity static-body geometry="primitive: triangle;
+        vertexA: 0 0 0; 
+        vertexB: 10.5 0 0; 
+        vertexC: 0 10.5 0" material="src: #wall_texture; side: double" position="-17.059 14.968 -8.050"
+          rotation="180 180 0" scale="-1 1 1">
+        </a-entity>
+      </a-entity>
+    </a-entity>
+
+    <!-- Decor Room 1 -->
+    <a-box static-body position="-7.127 7.650 -62.965" rotation="0 0 0" depth="0.1" height="5" width="4.3"
+      src="#painting2"></a-box>
+    <a-box static-body position="5.000 7.610 -62.965" rotation="0 0 0" depth="0.1" height="4" width="5"
+      src="#painting1"></a-box>
+
+    <a-gltf-model gltf-model="#carpet" position="0 0.255 -57.250" rotation="0 90 0" animation-mixer scale="2 4 1">
+    </a-gltf-model>
+    <a-gltf-model gltf-model="#crate" position="-16.851 2.249 -59.252" rotation="0 45 0" animation-mixer scale="5 5 5">
+    </a-gltf-model>
+    <a-gltf-model gltf-model="#crate" position="-19.819 2.249 -32.561" rotation="0 45 0" animation-mixer scale="5 5 5">
+    </a-gltf-model>
+    <a-gltf-model gltf-model="#crate" position="21.028 1 -57.429" rotation="0 45 0" animation-mixer scale="2 2 2">
+    </a-gltf-model>
+    <a-gltf-model gltf-model="#crate" position="-16.524 5.440 -61.205" rotation="0 -45 0" animation-mixer scale="2 2 2">
+    </a-gltf-model>
+    <a-gltf-model gltf-model="#crate" position="20.459 1 -34.153" rotation="0 45 0" animation-mixer scale="2 2 2">
+    </a-gltf-model>
+    <a-gltf-model gltf-model="#barrels" position="16.952 0 -61.293" rotation="0 0 0" animation-mixer
+      scale="0.4 0.4 0.4"></a-gltf-model>
+    <a-gltf-model gltf-model="#barrels" position="20 0 -58.758" rotation="22 90 0" animation-mixer scale="0.4 0.4 0.4">
+    </a-gltf-model>
+    <a-gltf-model gltf-model="#barrels" position="-22.471 0 -52.732" rotation="0 0 0" animation-mixer
+      scale="0.4 0.4 0.4"></a-gltf-model>
+    <a-gltf-model gltf-model="#barrels" position="20.000 0 -31.873" rotation="0 0 0" animation-mixer
+      scale="0.4 0.4 0.4"></a-gltf-model>
+    <a-gltf-model gltf-model="#barrels" position="-22.695 0 -49.574" rotation="0 0 0" animation-mixer
+      scale="0.4 0.4 0.4"></a-gltf-model>
+    <a-gltf-model gltf-model="#barrels" position="-22.695 3.709 -50.817" rotation="0 0 0" animation-mixer
+      scale="0.4 0.4 0.4"></a-gltf-model>
+
+    <a-entity id="bothPottery">
+      <a-entity id="pottery" scale="5 5 5" position="2.207 0 -32.519">
+        <a-entity position="0 0.15 -5" id="pottery1">
+          <a-sphere position="0 0 0" radius="0.2" src="#finechina" scale="0.7 1 0.7"></a-sphere>
+          <a-sphere position="-0.002 0.209 0.002" radius="1" theta-start="0" scale="0.11 0.2 0.11" theta-length="90"
+            rotation="0 0 -180" side="double" src="#finechina"></a-sphere>
+        </a-entity>
+
+        <a-entity position="0.102 0.05 -4.848" id="pottery2">
+          <a-sphere position="0 0 0" radius="0.15" src="#finechina" scale="0.5 0.5 0.5"></a-sphere>
+          <a-cylinder position="0 0.09 0" radius="0.07" height="0.3" src="#finechina" scale="0.5 0.5 0.5"></a-cylinder>
+          <a-sphere position="-0.002 0.191 0.002" radius="1" theta-start="0" scale="0.05 0.05 0.05" theta-length="90"
+            rotation="0 0 -180" side="double" src="#finechina"></a-sphere>
+        </a-entity>
+      </a-entity>
+    </a-entity>
+
+    <!-- Treasure Chest 1 -->
+    <a-entity id="treasure_Chest1" rotation="0 180 0" scale="5 5 5" position="0 -1 -58">
+      <a-entity id="chestBarrier" geometry="primitive: torus; radius: 1.5; radiusTubular: 0.1;" scale="0.5 0.5 0.5"
+        position="0 0.5 0" rotation="90 0 0"
+        material="src: #barrierPattern; opacity: 0.8; transparent: true; repeat: 2 1; side: double"
+        animation="property: rotation; to: 90 360 0; dur: 9500; loop: true; easing: linear;" static-body>
+      </a-entity>
+
+      <a-entity position="0 0 -2">
+        <a-box position="0 0.25 1.7" depth="1" height="0.5" width="1" color="#654321" <a-entity gltf-model="#bottom"
+          position="-1.34 -0.01 0" rotation="0 180 0" scale="0.1 0.1 0.1">
+      </a-entity>
+      </a-box>
+
+      <a-entity id="lid" position="0 0.5 0" rotation="0 0 0">
+        <a-box position="0 0 -0.5" depth="1" height="0.1" width="1" opacity="0.0">
+          <a-box position="-0.02 -0.26 0.49" depth="1" height="0.1" width="0.1" color="#a0522d" <a-entity
+            gltf-model="#top" position="-1.34 -0.01 -28.25" scale="0.1 0.1 0.1">
+      </a-entity>
+      </a-box>
+      </a-box>
+    </a-entity>
+
+    <a-light id="chest_light1" type="point" color="#FFD700" intensity="0" position="0 0.5 0"></a-light>
+    </a-entity>
+    </a-entity>
+
+    <!-- Door 1 -->
+    <a-entity id="door1" position="28 0 -43" rotation="0 -270 0">
+      <a-entity id="door-hinge" position="-1 0 0" rotation="0 0 0">
+        <!-- Hinge position -->
+        <a-entity id="right-door" gltf-model="#doorRight42" position="-6.4 0 0" scale="0.7 0.7 0.7" rotation="0 0 0">
+          <a-entity geometry="primitive: box; height: 20; width: 12; depth: 1.05; color: red" position="4.5 9.5 5.3"
+            static-body material="color: red; opacity: 0.0">
+          </a-entity>
+        </a-entity>
+      </a-entity>
+      <a-entity id="door-hinge" position="1 0 0" rotation="0 0 0">
+        <a-entity id="left-door" gltf-model="#doorRight32" position="6.4 0 0" scale="-0.7 0.7 0.7" rotation="0 0 0">
+          <a-entity geometry="primitive: box; height: 20; width: 12; depth: 1.05; color: red" position="4.5 9.5 5.3"
+            static-body material="color: red; opacity: 0.0">
+          </a-entity>
+        </a-entity>
+      </a-entity>
+    </a-entity>
+
+    <!-- Hallway 1 -->
+    <a-entity id="hallway1" position="22.45 0 -20.5">
+      <a-box static-body position="10 7.5 -15" rotation="0 0 0" depth="0.1" height="15" width="20" src="#wall_texture">
+      </a-box>
+      <a-box static-body position="10 7.5 -30" rotation="0 0 0" depth="0.1" height="15" width="20" src="#wall_texture">
+      </a-box>
+    </a-entity>
+
+    <!-- Room 2 -->
+    <a-entity id="room2" position="65 0 -21">
+      <a-box static-body position="0 7.5 -43" depth="0.1" height="15" width="45" src="#wall_texture" repeat="2 1">
+      </a-box>
+      <a-box static-body position="0 7.5 7" depth="0.1" height="15" width="45" src="#wall_texture" repeat="2 1"></a-box>
+
+      <a-entity rotation="0 90 0" position="15.5 0 -22.45">
+        <a-box static-body position="-18.9 7.5 -38" depth="0.1" height="15" width="22" src="#wall_texture"></a-box>
+        <a-box static-body position="15 7.5 -38" depth="0.1" height="15" width="16" src="#wall_texture"></a-box>
+      </a-entity>
+
+      <a-entity rotation="0 90 0" position="60.5 0 -22.45">
+        <a-box static-body position="-18.971 7.5 -38" depth="0.1" height="15" width="22" src="#wall_texture"></a-box>
+        <a-box static-body position="15 7.5 -38" depth="0.1" height="15" width="16" src="#wall_texture"></a-box>
+      </a-entity>
+    </a-entity>
+
+    <!-- Decor Room 2 -->
+    <a-entity>
+      <a-box static-body position="73.137 7.726 -63.929" rotation="0 0 0" depth="0.1" height="5" width="4.3"
+        src="#painting4"></a-box>
+      <a-box static-body position="56.098 7.595 -63.929" rotation="0 0 0" depth="0.1" height="4" width="5"
+        src="#painting3"></a-box>
+    </a-entity>
+    <a-entity position="0 0 42.241">
+      <a-box static-body position="73.137 7.726 -56.308" rotation="0 0 0" depth="0.1" height="5" width="4.3"
+        src="#painting7"></a-box>
+      <a-box static-body position="56.098 7.595 -56.308" rotation="0 0 0" depth="0.1" height="4" width="5"
+        src="#painting9"></a-box>
+    </a-entity>
+
+    <a-gltf-model src="#carpet" position="78.058 0.255 -42.560" rotation="0 0 0" animation-mixer scale="2 4 1">
+    </a-gltf-model>
+    <a-gltf-model src="#crate" position="124.659 2.082 -70.410" rotation="0 45 0" animation-mixer scale="5 5 5">
+    </a-gltf-model>
+    <a-gltf-model src="#crate" position="123.009 5.440 -70.138" rotation="0 90 0" animation-mixer scale="2 2 2">
+    </a-gltf-model>
+    <a-gltf-model src="#crate" position="124.989 1.487 -65.778" rotation="0 90 0" animation-mixer scale="3.5 3.5 3.5">
+    </a-gltf-model>
+    <a-gltf-model src="#crate" position="45.700 2.249 -18.210" rotation="0 45 0" animation-mixer scale="5 5 5">
+    </a-gltf-model>
+    <a-gltf-model src="#crate" position="45.771 5.440 -18.606" rotation="0 90 0" animation-mixer scale="2 2 2">
+    </a-gltf-model>
+    <a-gltf-model src="#crate" position="126.206 1 -91.636" rotation="0 15 0" animation-mixer scale="2 2 2">
+    </a-gltf-model>
+    <a-gltf-model src="#crate" position="125.233 2.887 -91.831" rotation="0 90 0" animation-mixer scale="2 2 2">
+    </a-gltf-model>
+    <a-gltf-model src="#crate" position="124.295 1 -91.777" rotation="0 45 0" animation-mixer scale="2 2 2">
+    </a-gltf-model>
+    <a-gltf-model src="#crate" position="69.424 1 -15.106" rotation="0 0 0" animation-mixer scale="2 2 2">
+    </a-gltf-model>
+    <a-gltf-model src="#crate" position="71.430 1 -15.783" rotation="0 45 0" animation-mixer scale="2 2 2">
+    </a-gltf-model>
+    <a-gltf-model src="#crate" position="70.622 1 -62.743" rotation="0 45 0" animation-mixer scale="2 2 2">
+    </a-gltf-model>
+    <a-gltf-model src="#crate" position="70.206 2.887 -15.443" rotation="0 45 0" animation-mixer scale="2 2 2">
+    </a-gltf-model>
+    <a-gltf-model src="#barrels" position="85.261 0 -26.182" rotation="0 0 0" animation-mixer scale="0.4 0.4 0.4">
+    </a-gltf-model>
+    <a-gltf-model src="#crate" position="86.007 1 -29.347" rotation="0 45 0" animation-mixer scale="2 2 2">
+    </a-gltf-model>
+    <a-gltf-model src="#crate" position="45.771 1 -62.753" rotation="0 45 0" animation-mixer scale="2 2 2">
+    </a-gltf-model>
+    <a-gltf-model src="#crate" position="126.418 1 -39.554" rotation="0 0 0" animation-mixer scale="2 2 2">
+    </a-gltf-model>
+    <a-gltf-model src="#barrels" position="83.341 0 -62.754" rotation="0 0 0" animation-mixer scale="0.4 0.4 0.4">
+    </a-gltf-model>
+    <a-gltf-model src="#barrels" position="83.060 0 -62.928" rotation="0 0 0" animation-mixer scale="0.4 0.4 0.4">
+    </a-gltf-model>
+    <a-gltf-model src="#barrels" position="65.542 0 -15.305" rotation="0 0 -15" animation-mixer scale="0.4 0.4 0.4">
+    </a-gltf-model>
+    <a-gltf-model src="#barrels" position="64.191 0 -62.754" rotation="0 0 0" animation-mixer scale="0.4 0.4 0.4">
+    </a-gltf-model>
+    <a-gltf-model src="#barrels" position="65.251 3.709 -62.629" rotation="0 0 0" animation-mixer scale="0.4 0.4 0.4">
+    </a-gltf-model>
+    <a-gltf-model src="#barrels" position="66.963 0 -62.727" rotation="0 0 0" animation-mixer scale="0.4 0.4 0.4">
+    </a-gltf-model>
+
+    <a-entity id="bothPottery" position="82.575 0 -3.319">
+      <a-entity id="pottery" scale="5 5 5" position="2.207 0 -32.519">
+        <a-entity position="0 0.15 -5" id="pottery1">
+          <a-sphere position="0 0 0" radius="0.2" src="#finechina" scale="0.7 1 0.7"></a-sphere>
+          <a-sphere position="-0.002 0.209 0.002" radius="1" theta-start="0" scale="0.11 0.2 0.11" theta-length="90"
+            rotation="0 0 -180" side="double" src="#finechina">
+          </a-sphere>
+          </a-circle>
+        </a-entity>
+
+        <a-entity position="0.102 0.05 -4.848" id="pottery2">
+          <a-sphere position="0 0 0" radius="0.15" src="#finechina" scale="0.5 0.5 0.5"></a-sphere>
+          <a-cylinder position="0 0.09 0" radius="0.07" height="0.3" src="#finechina" scale="0.5 0.5 0.5"></a-cylinder>
+          <a-sphere position="-0.002 0.191 0.002" radius="1" theta-start="0" scale="0.05 0.05 0.05" theta-length="90"
+            rotation="0 0 -180" side="double" src="#finechina">
+          </a-sphere>
+        </a-entity>
+      </a-entity>
+    </a-entity>
+
+    <a-entity id="bothPottery" position="183.123 3.551 -34.878" rotation="0 90 0">
+      <a-entity id="pottery" scale="5 5 5" position="2.207 0 -32.519">
+        <a-entity position="0 0.15 -5" id="pottery1">
+          <a-sphere position="0 0 0" radius="0.2" src="#finechina" scale="0.7 1 0.7"></a-sphere>
+          <a-sphere position="-0.002 0.209 0.002" radius="1" theta-start="0" scale="0.11 0.2 0.11" theta-length="90"
+            rotation="0 0 -180" side="double" src="#finechina">
+          </a-sphere>
+          </a-circle>
+        </a-entity>
+
+        <a-entity position="0.102 0.05 -4.848" id="pottery2">
+          <a-sphere position="0 0 0" radius="0.15" src="#finechina" scale="0.5 0.5 0.5"></a-sphere>
+          <a-cylinder position="0 0.09 0" radius="0.07" height="0.3" src="#finechina" scale="0.5 0.5 0.5"></a-cylinder>
+          <a-sphere position="-0.002 0.191 0.002" radius="1" theta-start="0" scale="0.05 0.05 0.05" theta-length="90"
+            rotation="0 0 -180" side="double" src="#finechina">
+          </a-sphere>
+        </a-entity>
+      </a-entity>
+    </a-entity>
+
+    <!-- Treasure Chest 2 -->
+    <a-entity id="treasure_Chest2" rotation="0 90 0" scale="5 5 5" position="78 -1 -42.5">
+      <a-entity id="chestBarrier" static-body geometry="primitive: torus; radius: 1.5; radiusTubular: 0.1;"
+        scale="0.5 0.5 0.5" position="0 0.5 0" rotation="90 0 0"
+        material="src: #barrierPattern; opacity: 0.8; transparent: true; repeat: 2 1; side: double"
+        animation="property: rotation; to: 90 360 0; dur: 9500; loop: true; easing: linear;">
+      </a-entity>
+
+      <a-ring position="0 1 -3" radius="1" visible="false" rotation="90 0 0"
+        animation="property: rotation; to: 90 360 0; dur: 3000; loop: true; easing: linear;">
+      </a-ring>
+      <a-entity position="0 0 -2">
+        <a-box position="0 0.25 1.7" depth="1" height="0.5" width="1" color="#654321" <a-entity gltf-model="#bottom"
+          position="-1.34 -0.01 0" rotation="0 180 0" scale="0.1 0.1 0.1">
+      </a-entity>
+      </a-box>
+
+      <a-entity id="lid" position="0 0.5 0" rotation="0 0 0">
+        <a-box position="0 0 -0.5" depth="1" height="0.1" width="1" opacity="0.0">
+          <a-box position="-0.02 -0.26 0.49" depth="1" height="0.1" width="0.1" color="#a0522d" <a-entity
+            gltf-model="#top" position="-1.34 -0.01 -28.25" scale="0.1 0.1 0.1">
+      </a-entity>
+      </a-box>
+      </a-box>
+    </a-entity>
+    <a-light id="chest_light2" type="point" color="#FFD700" intensity="0" position="0 0.5 0"></a-light>
+    </a-entity>
+    </a-entity>
+
+    <!-- Door 2 -->
+    <a-entity id="door2" position="95 0 -43" rotation="0 -270 0">
+      <a-entity id="door-hinge" position="-1 0 0" rotation="0 0 0">
+        <a-entity id="right-door2" gltf-model="#doorRight42" position="-6.4 0 0" scale="0.7 0.7 0.7" rotation="0 0 0">
+          <a-entity geometry="primitive: box; height: 20; width: 12; depth: 1.05; color: red" position="4.5 9.5 5.3"
+            static-body material="color: red; opacity: 0.0">
+          </a-entity>
+        </a-entity>
+      </a-entity>
+
+      <a-entity id="door-hinge" position="1 0 0" rotation="0 0 0">
+        <a-entity id="left-door2" gltf-model="#doorRight32" position="6.4 0 0" scale="-0.7 0.7 0.7" rotation="0 0 0">
+          <a-entity geometry="primitive: box; height: 20; width: 12; depth: 1.05; color: red" position="4.5 9.5 5.3"
+            static-body material="color: red; opacity: 0.0">
+          </a-entity>
+        </a-entity>
+      </a-entity>
+    </a-entity>
+
+    <!-- Hallway 2 -->
+    <a-entity id="hallway2" position="87.5 0 -20.5">
+      <a-box static-body position="20 7.5 -15" rotation="0 0 0" depth="0.1" height="15" width="40" src="#wall_texture"
+        repeat="2 1"></a-box>
+      <a-box static-body position="10 7.5 -30" rotation="0 0 0" depth="0.1" height="15" width="20" src="#wall_texture">
+      </a-box>
+      <a-box static-body position="40 7.5 -44" rotation="0 90 0" depth="0.1" height="15" width="58" src="#wall_texture"
+        repeat="3 1"></a-box>
+      <a-box static-body position="19.95 7.5 -44" rotation="0 90 0" depth="0.1" height="15" width="28"
+        src="#wall_texture" repeat="2 1"></a-box>
+      <a-box static-body position="20 7.5 -73" rotation="0 0 0" depth="0.1" height="15" width="40" src="#wall_texture"
+        repeat="2 1"></a-box>
+      <a-box static-body position="10 7.5 -58" rotation="0 0 0" depth="0.1" height="15" width="20" src="#wall_texture">
+      </a-box>
+    </a-entity>
+
+    <!-- Room 3 -->
+    <a-entity id="room3" position="65 0 -64">
+      <a-box static-body position="0 7.5 -43" depth="0.1" height="15" width="45" src="#wall_texture" repeat="2 1">
+      </a-box>
+      <a-box static-body position="0 7.5 -0.5" depth="0.1" height="15" width="45" src="#wall_texture" repeat="2 1">
+      </a-box>
+
+      <a-entity rotation="0 90 0" position="15.5 0 -22.45">
+        <a-box static-body position="-14.90 7.5 -38" depth="0.1" height="15" width="14" src="#wall_texture"></a-box>
+        <a-box static-body position="15 7.5 -38" depth="0.1" height="15" width="16" src="#wall_texture"></a-box>
+      </a-entity>
+
+      <a-entity rotation="0 90 0" position="60.5 0 -22.45">
+        <a-box static-body position="-14.90 7.5 -38" depth="0.1" height="15" width="14" src="#wall_texture"></a-box>
+        <a-box static-body position="15 7.5 -38" depth="0.1" height="15" width="16" src="#wall_texture"></a-box>
+      </a-entity>
+    </a-entity>
+
+    <!-- Decor Room 3 -->
+    <a-entity position="0 0 -40.901">
+      <a-box static-body position="73.137 7.726 -65.917" rotation="0 0 0" depth="0.1" height="5" width="4.3"
+        src="#painting12"></a-box>
+      <a-box static-body position="56.098 7.595 -65.917" rotation="0 0 0" depth="0.1" height="4" width="5"
+        src="#painting8"></a-box>
+    </a-entity>
+    <a-entity position="0 0 -0.769">
+      <a-box static-body position="73.137 7.726 -64.085" rotation="0 0 0" depth="0.1" height="5" width="4.3"
+        src="#painting11"></a-box>
+      <a-box static-body position="56.098 7.595 -64.085" rotation="0 0 0" depth="0.1" height="4" width="5"
+        src="#painting10"></a-box>
+    </a-entity>
+
+    <a-gltf-model src="#crate" position="61.887 2.249 -67.165" rotation="0 15 0" animation-mixer scale="5 5 5">
+    </a-gltf-model>
+    <a-gltf-model src="#crate" position="45.015 2.249 -73.482" rotation="0 -15 0" animation-mixer scale="5 5 5">
+    </a-gltf-model>
+    <a-gltf-model src="#carpet" position="50.354 0.255 -86.624" rotation="0 0 0" animation-mixer scale="2 4 1">
+    </a-gltf-model>
+    <a-gltf-model src="#crate" position="84.435 1 -68.106" rotation="0 45 0" animation-mixer scale="2 2 2">
+    </a-gltf-model>
+    <a-gltf-model src="#crate" position="43.804 1 -69.318" rotation="0 45 0" animation-mixer scale="2 2 2">
+    </a-gltf-model>
+    <a-gltf-model src="#crate" position="43.804 1 -101.786" rotation="0 45 0" animation-mixer scale="2 2 2">
+    </a-gltf-model>
+    <a-gltf-model src="#crate" position="67.687 1 -65.934" rotation="0 45 0" animation-mixer scale="2 2 2">
+    </a-gltf-model>
+    <a-gltf-model src="#crate" position="65.293 1 -66.020" rotation="0 45 0" animation-mixer scale="2 2 2">
+    </a-gltf-model>
+    <a-gltf-model src="#crate" position="66.204 2.887 -66.046" rotation="0 45 0" animation-mixer scale="2 2 2">
+    </a-gltf-model>
+    <a-gltf-model src="#crate" position="84.242 2.249 -100.046" rotation="0 45 0" animation-mixer scale="5 5 5">
+    </a-gltf-model>
+    <a-gltf-model src="#crate" position="80.611 1 -101.336" rotation="0 0 0" animation-mixer scale="2 2 2">
+    </a-gltf-model>
+    <a-gltf-model src="#crate" position="83.726 5.109 -99.809" rotation="0 0 0" animation-mixer scale="2 2 2">
+    </a-gltf-model>
+    <a-gltf-model src="#barrels" position="44.751 0 -102.780" rotation="-20 0 0" animation-mixer scale="0.4 0.4 0.4">
+    </a-gltf-model>
+    <a-gltf-model src="#barrels" position="125.062 0 -37.204" rotation="0 0 0" animation-mixer scale="0.4 0.4 0.4">
+    </a-gltf-model>
+    <a-gltf-model src="#barrels" position="61.003 0 -105.729" rotation="0 0 0" animation-mixer scale="0.4 0.4 0.4">
+    </a-gltf-model>
+    <a-gltf-model src="#barrels" position="63.529 0 -105.729" rotation="0 0 0" animation-mixer scale="0.4 0.4 0.4">
+    </a-gltf-model>
+    <a-gltf-model src="#barrels" position="62.451 3.709 -105.729" rotation="0 0 0" animation-mixer scale="0.4 0.4 0.4">
+    </a-gltf-model>
+    <a-gltf-model src="#barrels" position="44.905 -0.101 -66.142" rotation="0 0 0" animation-mixer scale="0.4 0.4 0.4">
+    </a-gltf-model>
+    <a-gltf-model src="#barrels" position="45.602 0.284 -69.247" rotation="22 0 0" animation-mixer scale="0.4 0.4 0.4">
+    </a-gltf-model>
+    <a-gltf-model src="#barrels" position="83.605 0 -64.635" rotation="20 90 0" animation-mixer scale="0.4 0.4 0.4">
+    </a-gltf-model>
+
+    <a-entity id="bothPottery" position="103.120 -0.176 -98.844" rotation="0 90 0">
+      <a-entity id="pottery" scale="5 5 5" position="2.207 0 -32.519">
+        <a-entity position="0 0.15 -5" id="pottery1">
+          <a-sphere position="0 0 0" radius="0.2" src="#finechina" scale="0.7 1 0.7"></a-sphere>
+          <a-sphere position="-0.002 0.209 0.002" radius="1" theta-start="0" scale="0.11 0.2 0.11" theta-length="90"
+            rotation="0 0 -180" side="double" src="#finechina">
+          </a-sphere>
+          </a-circle>
+        </a-entity>
+
+        <a-entity position="0.102 0.05 -4.848" id="pottery2">
+          <a-sphere position="0 0 0" radius="0.15" src="#finechina" scale="0.5 0.5 0.5"></a-sphere>
+          <a-cylinder position="0 0.09 0" radius="0.07" height="0.3" src="#finechina" scale="0.5 0.5 0.5"></a-cylinder>
+          <a-sphere position="-0.002 0.191 0.002" radius="1" theta-start="0" scale="0.05 0.05 0.05" theta-length="90"
+            rotation="0 0 -180" side="double" src="#finechina">
+          </a-sphere>
+        </a-entity>
+      </a-entity>
+    </a-entity>
+
+    <a-gltf-model src="#crate" position="19.033 2.082 -70.410" rotation="0 45 0" animation-mixer scale="5 5 5">
+    </a-gltf-model>
+    <a-gltf-model src="#crate" position="-28.055 2.249 -74.358" rotation="0 45 0" animation-mixer scale="5 5 5">
+    </a-gltf-model>
+    <a-gltf-model src="#crate" position="-27.019 5.440 -74.476" rotation="0 90 0" animation-mixer scale="2 2 2">
+    </a-gltf-model>
+    <a-gltf-model src="#barrels" position="-28.694 0 -70.197" rotation="-20 0 0" animation-mixer scale="0.4 0.4 0.4">
+    </a-gltf-model>
+    <a-gltf-model src="#crate" position="-26.977 1 -68.257" rotation="0 -45 0" animation-mixer scale="2 2 2">
+    </a-gltf-model>
+    <a-gltf-model src="#crate" position="-26.977 1 -68.257" rotation="0 -45 0" animation-mixer scale="2 2 2">
+    </a-gltf-model>
+    <a-gltf-model src="#crate" position="16.127 1.417 -67.925" rotation="0 0 0" animation-mixer scale="3 3 3">
+    </a-gltf-model>
+
+    <!-- Treasure Chest 3 -->
+    <a-entity id="treasure_Chest3" rotation="0 -90 0" scale="5 5 5" position="50 -1 -86.5">
+      <a-entity id="chestBarrier" static-body geometry="primitive: torus; radius: 1.5; radiusTubular: 0.1;"
+        scale="0.5 0.5 0.5" position="0 0.5 0" rotation="90 0 0"
+        material="src: #barrierPattern; opacity: 0.8; transparent: true; repeat: 2 1; side: double"
+        animation="property: rotation; to: 90 360 0; dur: 9500; loop: true; easing: linear;">
+      </a-entity>
+
+      <a-ring position="0 1 -3" radius="1" visible="false" rotation="90 0 0"
+        animation="property: rotation; to: 90 360 0; dur: 3000; loop: true; easing: linear;">
+      </a-ring>
+      <a-entity position="0 0 -2">
+        <a-box position="0 0.25 1.7" depth="1" height="0.5" width="1" color="#654321" <a-entity gltf-model="#bottom"
+          position="-1.34 -0.01 0" rotation="0 180 0" scale="0.1 0.1 0.1">
+      </a-entity>
+      </a-box>
+
+      <a-entity id="lid" position="0 0.5 0" rotation="0 0 0">
+        <a-box position="0 0 -0.5" depth="1" height="0.1" width="1" opacity="0.0">
+          <a-box position="-0.02 -0.26 0.49" depth="1" height="0.1" width="0.1" color="#a0522d" <a-entity
+            gltf-model="#top" position="-1.34 -0.01 -28.25" scale="0.1 0.1 0.1">
+      </a-entity>
+      </a-box>
+      </a-box>
+    </a-entity>
+    <a-light id="chest_light3" type="point" color="#FFD700" intensity="0" position="0 0.5 0"></a-light>
+    </a-entity>
+    </a-entity>
+
+    <!-- Door 3 -->
+    <a-entity id="door3" position="37 0 -86" rotation="0 -90 0">
+      <a-entity id="door-hinge" position="-1 0 0" rotation="0 0 0">
+        <a-entity id="right-door3" gltf-model="#doorRight42" position="-6.4 0 0" scale="0.7 0.7 0.7" rotation="0 0 0">
+          <a-entity geometry="primitive: box; height: 20; width: 12; depth: 1.05; color: red" position="4.5 9.5 5.3"
+            static-body material="color: red; opacity: 0.0">
+          </a-entity>
+        </a-entity>
+      </a-entity>
+
+      <a-entity id="door-hinge" position="1 0 0" rotation="0 0 0">
+        <a-entity id="left-door3" gltf-model="#doorRight32" position="6.4 0 0" scale="-0.7 0.7 0.7" rotation="0 0 0">
+          <a-entity geometry="primitive: box; height: 20; width: 12; depth: 1.05; color: red" position="4.5 9.5 5.3"
+            static-body material="color: red; opacity: 0.0">
+          </a-entity>
+        </a-entity>
+      </a-entity>
+    </a-entity>
+
+    <!-- Hallway 3 -->
+    <a-entity id="hallway3" position="22.45 0 -63.5">
+      <a-box static-body position="10 7.5 -15" rotation="0 0 0" depth="0.1" height="15" width="20" src="#wall_texture">
+      </a-box>
+      <a-box static-body position="1 7.5 -30" rotation="0 0 0" depth="0.1" height="15" width="38" src="#wall_texture"
+        repeat="2 1"></a-box>
+
+      <a-entity id="tunnel_cover" position="-33 0 -30" rotation="0 180 0">
+        <a-entity id="1">
+          <a-box static-body position="17.4 7.5 -8" depth="0.1" height="15" width="8" src="#wall_texture"></a-box>
+          <a-entity static-body geometry="primitive: triangle;
+          vertexA: 0 0 0; 
+          vertexB: 10.5 0 0; 
+          vertexC: 0 10.5 0" material="src: #wall_texture; side: double" position="16.232 15 -8.050"
+            rotation="180 180 0">
+          </a-entity>
+        </a-entity>
+
+        <a-entity id="2" position="0 0 1">
+          <a-box static-body position="-18.7 7.5 -8" depth="0.1" height="15" width="8" src="#wall_texture"></a-box>
+          <a-entity static-body geometry="primitive: triangle;
+          vertexA: 0 0 0; 
+          vertexB: 9 0 0; 
+          vertexC: 0 10.5 0" material="src: #wall_texture; side: double" position="-14.8 15 -8.05" rotation="180 180 0"
+            scale="-1 1 1">
+          </a-entity>
+        </a-entity>
+
+        <a-box static-body position="-33 7.5 -20.95" rotation="0 90 0" depth="0.1" height="15" width="12"
+          src="#wall_texture"></a-box>
+        <a-box static-body position="-6 7.5 -27" rotation="0 0 0" depth="0.1" height="15" width="55" src="#wall_texture"
+          repeat="2 1"></a-box>
+        <a-box static-body position="20 7.5 -18" rotation="0 90 0" depth="0.1" height="15" width="20"
+          src="#wall_texture"></a-box>
+        <a-box static-body position="-22.7 7.5 -3.05" rotation="0 90 0" depth="0.1" height="15" width="8"
+          src="#wall_texture"></a-box>
+      </a-entity>
+    </a-entity>
+
+    <a-entity rotation="0 90 0" position="191.181 0 0">
+      <a-box static-body position="82.007 7.726 -63.888" rotation="0 0 0" depth="0.1" height="5" width="4.3"
+        src="#painting6"></a-box>
+      <a-box static-body position="64.883 7.595 -63.973" rotation="0 0 0" depth="0.1" height="4" width="5"
+        src="#painting5"></a-box>
+      <a-box static-body position="47.275 7.726 -63.888" rotation="0 0 0" depth="0.1" height="5" width="4.3"
+        src="#painting6"></a-box>
+    </a-entity>
+
+    <!-- Key 1 -->
+    <a-entity id="key1" position="-9.2 0.1 -57.3" class="key" data-key="key1" rotation="0 -90 0" scale="3 3 3">
+      <a-entity geometry="primitive: torus; radius: 0.4; radiusTubular: 0.05" position="0 0.5 -3"
+        material="src: #copper; roughness: 0.1" rotation="90 0 0" scale="0.15 0.15 0.15">
+      </a-entity>
+      <a-cylinder radius="0.4" scale="0.05 0.2 0.05" rotation="90 0 0" position="0 0.5 -3.15"
+        material="src: #copper; roughness: 0.1"></a-cylinder>
+      <a-cylinder radius="0.4" scale="0.05 0.06 0.05" rotation="90 90 0" position="0.03 0.5 -3.18"
+        material="src: #copper; roughness: 0.1"></a-cylinder>
+      <a-cylinder radius="0.4" scale="0.05 0.06 0.05" rotation="90 90 0" position="0.03 0.5 -3.23"
+        material="src: #copper; roughness: 0.1"></a-cylinder>
+    </a-entity>
+
+    <!-- Key 2 -->
+    <a-entity id="key2" position="77.2 0.1 -51.6" class="key" data-key="key2" rotation="0 -180 0" scale="3 3 3">
+      <a-entity geometry="primitive: torus; radius: 0.4; radiusTubular: 0.05" position="0 0.5 -3"
+        material="src: #silver; roughness: 0.1" rotation="90 0 0" scale="0.15 0.15 0.15">
+      </a-entity>
+      <a-cylinder radius="0.4" scale="0.05 0.2 0.05" rotation="90 0 0" position="0 0.5 -3.15"
+        material="src: #silver; roughness: 0.1"></a-cylinder>
+      <a-cylinder radius="0.4" scale="0.05 0.06 0.05" rotation="90 90 0" position="0.03 0.5 -3.18"
+        material="src: #silver; roughness: 0.1"></a-cylinder>
+      <a-cylinder radius="0.4" scale="0.05 0.06 0.05" rotation="90 90 0" position="0.03 0.5 -3.23"
+        material="src: #silver; roughness: 0.1"></a-cylinder>
+    </a-entity>
+
+    <!-- Key 3 -->
+    <a-entity id="key3" position="50.7 0.1 -77.3" class="key" data-key="key3" rotation="0 0 0" scale="3 3 3">
+      <a-entity geometry="primitive: torus; radius: 0.4; radiusTubular: 0.05" position="0 0.5 -3"
+        material="src: #gold; roughness: 0.1" rotation="90 0 0" scale="0.15 0.15 0.15">
+      </a-entity>
+      <a-cylinder radius="0.4" scale="0.05 0.2 0.05" rotation="90 0 0" position="0 0.5 -3.15"
+        material="src: #gold; roughness: 0.1"></a-cylinder>
+      <a-cylinder radius="0.4" scale="0.05 0.06 0.05" rotation="90 90 0" position="0.03 0.5 -3.18"
+        material="src: #gold; roughness: 0.1"></a-cylinder>
+      <a-cylinder radius="0.4" scale="0.05 0.06 0.05" rotation="90 90 0" position="0.03 0.5 -3.23"
+        material="src: #gold; roughness: 0.1"></a-cylinder>
+    </a-entity>
+
+
+  </a-scene>
+</body>
+
+</html>
